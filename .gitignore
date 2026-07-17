@@ -1,0 +1,5 @@
+node_modules/
+deployments.db
+config.json
+test-env/
+.env
