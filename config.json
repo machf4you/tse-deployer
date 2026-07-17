@@ -1,0 +1,23 @@
+{
+  "github_webhook_secret": "test_secret_key",
+  "apps": {
+    "tse_deployer": {
+      "name": "TSE Deployer",
+      "repository": "machf4you/tse-deployer",
+      "branch": "master",
+      "local_folder": "/var/www/www-root/data/deployments/tse-deployer",
+      "build_cmd": "npm install",
+      "restart_cmd": "pm2 restart tse-deployer",
+      "health_check_url": ""
+    },
+    "tse_lead_finder": {
+      "name": "TSE Lead Finder",
+      "repository": "machf4you/tse-lead-finder",
+      "branch": "master",
+      "local_folder": "/var/www/www-root/data/deployments/tse-lead-finder",
+      "build_cmd": "npm run build && cd server && npm install",
+      "restart_cmd": "pm2 restart tse-lead-finder",
+      "health_check_url": "http://localhost:3002/api/health"
+    }
+  }
+}
