@@ -2,6 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 
+const getConfigPath = () => {
+  const currentConfigPath = path.join(__dirname, 'current', 'config.json');
+  if (fs.existsSync(currentConfigPath)) {
+    return currentConfigPath;
+  }
+  return path.join(__dirname, 'config.json');
+};
+
 function runCmd(cmd, cwd) {
   return new Promise((resolve, reject) => {
     exec(cmd, { cwd }, (err, stdout, stderr) => {
@@ -48,7 +56,7 @@ async function runHealthCheck(url, timeoutMs = 12000, retryIntervalMs = 2000) {
 
 async function deployApp(appId, payload, isObsolete) {
   // Load configuration
-  const configPath = path.join(__dirname, 'config.json');
+  const configPath = getConfigPath();
   const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   const appConfig = config.apps[appId];
 

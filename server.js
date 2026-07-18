@@ -6,6 +6,14 @@ const { getDb } = require('./db');
 const { enqueueDeployment, getQueueStatus } = require('./queue');
 const { deployApp } = require('./deployer');
 
+const getConfigPath = () => {
+  const currentConfigPath = path.join(__dirname, 'current', 'config.json');
+  if (fs.existsSync(currentConfigPath)) {
+    return currentConfigPath;
+  }
+  return path.join(__dirname, 'config.json');
+};
+
 const app = express();
 const port = 9000;
 
@@ -21,7 +29,7 @@ app.post('/webhook', (req, res) => {
   const signature = req.headers['x-hub-signature-256'];
   
   // Load configuration file
-  const configPath = path.join(__dirname, 'config.json');
+  const configPath = getConfigPath();
   if (!fs.existsSync(configPath)) {
     return res.status(500).json({ error: 'Configuration file missing on server' });
   }
@@ -89,7 +97,7 @@ app.get('/api/deployments', async (req, res) => {
 
 // Endpoint to get the current status of all applications
 app.get('/api/status', (req, res) => {
-  const configPath = path.join(__dirname, 'config.json');
+  const configPath = getConfigPath();
   if (!fs.existsSync(configPath)) {
     return res.status(500).json({ error: 'Configuration file missing' });
   }
