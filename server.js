@@ -86,7 +86,7 @@ app.post('/webhook', (req, res) => {
 
 app.get('/api/pm2-list', (req, res) => {
   const { exec } = require('child_process');
-  exec('pm2 logs tse-lead-finder-api --lines 100 --nostream', (err, stdout, stderr) => {
+  exec('ls -la /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk && echo "=== DIST ===" && ls -la /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist', (err, stdout, stderr) => {
     if (err) {
       return res.status(500).json({ error: err.message, stderr });
     }
