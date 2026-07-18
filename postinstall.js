@@ -17,6 +17,7 @@ filesToCopy.forEach(file => {
     }
   }
 });
+const nodePath = process.execPath;
 // Spawn a detached process to copy lead finder files and restart PM2 processes from correct parent paths
 const script = `
   sleep 3
@@ -24,7 +25,7 @@ const script = `
   # Add PM2 diagnostics to version.json
   pm2_list=$(pm2 list 2>&1)
   who_ami=$(whoami 2>&1)
-  node -e "
+  ${nodePath} -e "
     const fs = require('fs');
     const path = '/var/www/www-root/data/deployments/tse-deployer/current/version.json';
     if (fs.existsSync(path)) {
@@ -58,7 +59,7 @@ const script = `
 `;
 
 console.log("Spawning detached PM2 reset process...");
-const child = spawn('bash', ['-c', script], {
+const child = spawn('bash', ['-l', '-c', script], {
   detached: true,
   stdio: 'ignore'
 });
