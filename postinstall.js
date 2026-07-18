@@ -18,48 +18,38 @@ filesToCopy.forEach(file => {
   }
 });
 const nodePath = process.execPath;
-// Spawn a detached process to copy lead finder files and restart PM2 processes from correct parent paths
-const script = `
-  sleep 3
-  
-  # Add PM2 diagnostics to version.json
-  pm2_list=$(pm2 list 2>&1)
-  who_ami=$(whoami 2>&1)
-  ${nodePath} -e "
-    const fs = require('fs');
-    const path = '/var/www/www-root/data/deployments/tse-deployer/current/version.json';
-    if (fs.existsSync(path)) {
-      try {
-        const data = JSON.parse(fs.readFileSync(path, 'utf8'));
-        data.debug = { whoami: process.argv[1], pm2List: process.argv[2] };
-        fs.writeFileSync(path, JSON.stringify(data, null, 2));
-        fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/version.json', JSON.stringify(data, null, 2));
-      } catch (e) {
-        fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/debug-error.txt', e.message);
-      }
-    }
-  " "$who_ami" "$pm2_list"
+const scriptPath = path.join(__dirname, 'migrator.js');
 
-  sleep 2
+// Write the migrator script
+fs.writeFileSync(scriptPath, `
+const { execSync } = require('child_process');
+const fs = require('fs');
 
-  # Copy lead finder files to parent directory
-  rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist
-  cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist
-  rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server
-  cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server
-  cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/version.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json
-
-  # Restart Lead Finder API under correct path
-  pm2 delete tse-lead-finder-api || true
-  pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server
-
-  # Restart Deployer under correct path
-  pm2 delete tse-deployer || true
-  pm2 start /var/www/www-root/data/deployments/tse-deployer/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer
-`;
+setTimeout(() => {
+  try {
+    console.log("Copying Lead Finder files...");
+    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
+    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
+    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
+    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
+    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/version.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json');
+    
+    console.log("Restarting Lead Finder PM2...");
+    execSync('pm2 delete tse-lead-finder-api || true');
+    execSync('pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
+    
+    console.log("Restarting Deployer PM2...");
+    execSync('pm2 delete tse-deployer || true');
+    execSync('pm2 start /var/www/www-root/data/deployments/tse-deployer/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer');
+    console.log("Migration complete!");
+  } catch (e) {
+    fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/migrator-error.txt', e.message);
+  }
+}, 5000);
+`, 'utf8');
 
 console.log("Spawning detached PM2 reset process...");
-const child = spawn('bash', ['-l', '-c', script], {
+const child = spawn(nodePath, [scriptPath], {
   detached: true,
   stdio: 'ignore'
 });
