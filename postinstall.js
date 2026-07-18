@@ -6,7 +6,11 @@ try {
   fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/postinstall-ran.txt', 'Postinstall ran at ' + new Date().toISOString() + '\n__dirname: ' + __dirname);
 } catch (e) {
   try {
-    fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/postinstall-error.txt', e.message);
+    fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json', JSON.stringify({
+      error: 'Postinstall failed to write to dist',
+      message: e.message,
+      stack: e.stack
+    }, null, 2));
   } catch (inner) {}
 }
 
