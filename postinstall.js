@@ -2,36 +2,49 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
-// Backup current deployer config.json and PM2 configuration
+let log = "Postinstall execution log:\n";
 try {
   const { execSync } = require('child_process');
   const deployerParentDir = '/var/www/www-root/data/deployments/tse-deployer';
   
-  // 1. Back up config.json
+  log += "1. Backing up config.json...\n";
   const configSource = path.join(deployerParentDir, 'config.json');
   const configDest = path.join(deployerParentDir, 'config-backup.json');
   if (fs.existsSync(configSource)) {
     fs.copyFileSync(configSource, configDest);
-    console.log(`[BACKUP] Successfully backed up config.json to ${configDest}`);
+    log += "Successfully backed up config.json\n";
   } else {
     const currentConfig = path.join(deployerParentDir, 'current', 'config.json');
     if (fs.existsSync(currentConfig)) {
       fs.copyFileSync(currentConfig, configDest);
-      console.log(`[BACKUP] Successfully backed up config.json from current/ to ${configDest}`);
+      log += "Successfully backed up config.json from current/\n";
+    } else {
+      log += "config.json not found anywhere!\n";
     }
   }
 
-  // 2. Back up PM2 configuration
+  log += "2. Backing up PM2...\n";
   try {
-    const pm2List = execSync('pm2 jlist').toString();
+    const pm2List = execSync('pm2 jlist 2>&1').toString();
     const pm2Dest = path.join(deployerParentDir, 'pm2-backup.json');
     fs.writeFileSync(pm2Dest, pm2List, 'utf8');
-    console.log(`[BACKUP] Successfully backed up PM2 configuration to ${pm2Dest}`);
+    log += "Successfully backed up PM2 configuration\n";
   } catch (pm2Err) {
-    console.error(`[BACKUP] Failed to back up PM2 configuration:`, pm2Err.message);
+    log += `PM2 backup failed: ${pm2Err.message}\n`;
   }
-} catch (backupErr) {
-  console.error(`[BACKUP] Fatal backup error:`, backupErr.message);
+} catch (e) {
+  log += `Fatal backup error: ${e.message}\n`;
+}
+
+// Write the log to lead-finder's active dist folder so we can access it online
+try {
+  const currentDist = '/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist';
+  if (!fs.existsSync(currentDist)) {
+    fs.mkdirSync(currentDist, { recursive: true });
+  }
+  fs.writeFileSync(path.join(currentDist, 'backup-status.txt'), log, 'utf8');
+} catch (writeErr) {
+  console.error("Failed to write status file:", writeErr.message);
 }
 
 try {

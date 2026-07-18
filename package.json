@@ -1,6 +1,6 @@
 {
   "name": "tse-deployer",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Centralized Automated Zero-Downtime Deployment Service for TSE Apps",
   "main": "server.js",
   "scripts": {
