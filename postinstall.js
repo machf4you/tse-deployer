@@ -18,6 +18,18 @@ filesToCopy.forEach(file => {
   }
 });
 
+try {
+  const { execSync } = require('child_process');
+  const pm2List = execSync('pm2 list').toString();
+  fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/pm2-list.txt', pm2List);
+  const whoami = execSync('whoami').toString();
+  fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/whoami.txt', whoami);
+} catch (e) {
+  try {
+    fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/pm2-error.txt', e.message);
+  } catch (inner) {}
+}
+
 // Spawn a detached process to copy lead finder files and restart PM2 processes from correct parent paths
 const script = `
   sleep 5
