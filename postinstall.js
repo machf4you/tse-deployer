@@ -26,25 +26,35 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 
 setTimeout(() => {
+  const status = {
+    step: 'started',
+    time: new Date().toISOString()
+  };
+
   try {
-    console.log("Copying Lead Finder files...");
+    status.step = 'copying_lead_finder_files';
     execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
     execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
     execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
     execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
-    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/version.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json');
     
-    console.log("Restarting Lead Finder PM2...");
+    status.step = 'restarting_lead_finder_pm2';
     execSync('pm2 delete tse-lead-finder-api || true');
     execSync('pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
     
-    console.log("Restarting Deployer PM2...");
+    status.step = 'restarting_deployer_pm2';
     execSync('pm2 delete tse-deployer || true');
     execSync('pm2 start /var/www/www-root/data/deployments/tse-deployer/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer');
-    console.log("Migration complete!");
+    
+    status.step = 'complete';
   } catch (e) {
-    fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/migrator-error.txt', e.message);
+    status.step = 'error';
+    status.error = e.message;
   }
+
+  try {
+    fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json', JSON.stringify(status, null, 2));
+  } catch (inner) {}
 }, 5000);
 `, 'utf8');
 
