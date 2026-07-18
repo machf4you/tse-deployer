@@ -4,7 +4,8 @@
   "description": "Centralized Automated Zero-Downtime Deployment Service for TSE Apps",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "node postinstall.js"
   },
   "dependencies": {
     "express": "^4.21.2",
