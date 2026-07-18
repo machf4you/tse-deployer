@@ -3,14 +3,28 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 const targetDir = path.join(__dirname, '..', '..');
-const filesToCopy = ['config.json', 'server.js', 'deployer.js'];
+const filesToCopy = [
+  'config.json',
+  'server.js',
+  'deployer.js',
+  'db.js',
+  'queue.js',
+  'package.json',
+  'package-lock.json',
+  'node_modules'
+];
 
 filesToCopy.forEach(file => {
   const src = path.join(__dirname, file);
   const dest = path.join(targetDir, file);
   if (fs.existsSync(src)) {
     try {
-      fs.copyFileSync(src, dest);
+      const stat = fs.statSync(src);
+      if (stat.isDirectory()) {
+        fs.cpSync(src, dest, { recursive: true });
+      } else {
+        fs.copyFileSync(src, dest);
+      }
       console.log(`Successfully copied ${file} to ${dest}`);
     } catch (e) {
       console.error(`Failed to copy ${file}:`, e.message);
@@ -37,6 +51,10 @@ setTimeout(() => {
     execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
     execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
     execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
+    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/node_modules');
+    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/node_modules /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/node_modules');
+    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/package.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/package.json');
+    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/package-lock.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/package-lock.json');
     
     status.step = 'restarting_lead_finder_pm2';
     execSync('pm2 delete tse-lead-finder-api || true');
