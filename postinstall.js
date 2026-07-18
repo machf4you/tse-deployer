@@ -36,31 +36,25 @@ try {
   log += `Fatal backup error: ${e.message}\n`;
 }
 
-// Write the log to lead-finder's root folder so we can access it online
-try {
-  const targetDir = '/var/www/www-root/data/deployments/tse-deployer';
-  try {
-    const symlinkTarget = fs.readlinkSync(path.join(targetDir, 'current'));
-    log += `tse-deployer current points to: ${symlinkTarget}\n`;
-  } catch (e) {
-    log += `tse-deployer current readlink failed: ${e.message}\n`;
-  }
-  
-  try {
-    const globalConfig = fs.readFileSync(path.join(targetDir, 'config.json'), 'utf8');
-    log += `Global config: ${globalConfig}\n`;
-  } catch (e) {
-    log += `Global config read failed: ${e.message}\n`;
-  }
+// Write the log to all possible lead-finder web locations so we can access it online
+  const writeDestinations = [
+    '/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/backup-status.txt',
+    '/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/backup-status.txt',
+    '/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/backup-status.txt',
+    '/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist/backup-status.txt'
+  ];
 
-  try {
-    const activeConfig = fs.readFileSync(path.join(targetDir, 'current', 'config.json'), 'utf8');
-    log += `Active config: ${activeConfig}\n`;
-  } catch (e) {
-    log += `Active config read failed: ${e.message}\n`;
-  }
-
-  fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/backup-status.txt', log, 'utf8');
+  writeDestinations.forEach(dest => {
+    try {
+      const dir = path.dirname(dest);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      fs.writeFileSync(dest, log, 'utf8');
+    } catch (e) {
+      console.error(`Failed to write diagnostic log to ${dest}:`, e.message);
+    }
+  });
 } catch (writeErr) {
   console.error("Failed to write status file:", writeErr.message);
 }
