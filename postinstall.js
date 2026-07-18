@@ -2,6 +2,38 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
+// Backup current deployer config.json and PM2 configuration
+try {
+  const { execSync } = require('child_process');
+  const deployerParentDir = '/var/www/www-root/data/deployments/tse-deployer';
+  
+  // 1. Back up config.json
+  const configSource = path.join(deployerParentDir, 'config.json');
+  const configDest = path.join(deployerParentDir, 'config-backup.json');
+  if (fs.existsSync(configSource)) {
+    fs.copyFileSync(configSource, configDest);
+    console.log(`[BACKUP] Successfully backed up config.json to ${configDest}`);
+  } else {
+    const currentConfig = path.join(deployerParentDir, 'current', 'config.json');
+    if (fs.existsSync(currentConfig)) {
+      fs.copyFileSync(currentConfig, configDest);
+      console.log(`[BACKUP] Successfully backed up config.json from current/ to ${configDest}`);
+    }
+  }
+
+  // 2. Back up PM2 configuration
+  try {
+    const pm2List = execSync('pm2 jlist').toString();
+    const pm2Dest = path.join(deployerParentDir, 'pm2-backup.json');
+    fs.writeFileSync(pm2Dest, pm2List, 'utf8');
+    console.log(`[BACKUP] Successfully backed up PM2 configuration to ${pm2Dest}`);
+  } catch (pm2Err) {
+    console.error(`[BACKUP] Failed to back up PM2 configuration:`, pm2Err.message);
+  }
+} catch (backupErr) {
+  console.error(`[BACKUP] Fatal backup error:`, backupErr.message);
+}
+
 try {
   fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/postinstall-ran.txt', 'Postinstall ran at ' + new Date().toISOString() + '\n__dirname: ' + __dirname);
 } catch (e) {
