@@ -16,7 +16,7 @@
       "branch": "master",
       "local_folder": "/var/www/www-root/data/deployments/tse-lead-finder",
       "build_cmd": "npm run build && cd server && npm install",
-      "restart_cmd": "pm2 restart tse-lead-finder || (pm2 delete server || true; pm2 delete lead-finder || true; pm2 start server/server.js --name tse-lead-finder)",
+      "restart_cmd": "npx kill-port 3002 || true; pm2 restart tse-lead-finder || (pm2 delete server || true; pm2 delete lead-finder || true; pm2 start server/server.js --name tse-lead-finder)",
       "health_check_url": "http://localhost:3002/api/health"
     }
   }
