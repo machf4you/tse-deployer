@@ -2,6 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 
+try {
+  fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist/postinstall-ran.txt', 'Postinstall ran at ' + new Date().toISOString() + '\n__dirname: ' + __dirname);
+} catch (e) {
+  try {
+    fs.writeFileSync('/var/www/www-root/data/deployments/tse-deployer/postinstall-error.txt', e.message);
+  } catch (inner) {}
+}
+
 const targetDir = path.join(__dirname, '..', '..');
 const filesToCopy = [
   'config.json',
