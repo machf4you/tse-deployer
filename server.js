@@ -84,6 +84,16 @@ app.post('/webhook', (req, res) => {
   });
 });
 
+app.get('/api/pm2-list', (req, res) => {
+  const { exec } = require('child_process');
+  exec('pm2 list', (err, stdout, stderr) => {
+    if (err) {
+      return res.status(500).json({ error: err.message, stderr });
+    }
+    res.send(`<pre>${stdout}</pre>`);
+  });
+});
+
 // Endpoint to list all historical deployments (logs)
 app.get('/api/deployments', async (req, res) => {
   try {
