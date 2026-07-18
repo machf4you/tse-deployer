@@ -3,6 +3,14 @@ const path = require('path');
 const { exec } = require('child_process');
 
 const getConfigPath = () => {
+  const parentCurrentConfig = path.join(__dirname, '..', '..', 'current', 'config.json');
+  if (fs.existsSync(parentCurrentConfig)) {
+    return parentCurrentConfig;
+  }
+  const parentConfig = path.join(__dirname, '..', '..', 'config.json');
+  if (fs.existsSync(parentConfig)) {
+    return parentConfig;
+  }
   const currentConfigPath = path.join(__dirname, 'current', 'config.json');
   if (fs.existsSync(currentConfigPath)) {
     return currentConfigPath;
