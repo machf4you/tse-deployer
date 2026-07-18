@@ -14,7 +14,7 @@
       "name": "TSE Lead Finder",
       "repository": "machf4you/tse-lead-finder",
       "branch": "master",
-      "local_folder": "/var/www/www-root/data/deployments/tse-lead-finder",
+      "local_folder": "/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
       "restart_cmd": "pm2 restart tse-lead-finder-api",
       "health_check_url": "http://localhost:3002/api/health"
