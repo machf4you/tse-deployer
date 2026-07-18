@@ -86,7 +86,7 @@ app.post('/webhook', (req, res) => {
 
 app.get('/api/pm2-list', (req, res) => {
   const { exec } = require('child_process');
-  exec('pm2 list', (err, stdout, stderr) => {
+  exec('pm2 show tse-lead-finder-api', (err, stdout, stderr) => {
     if (err) {
       return res.status(500).json({ error: err.message, stderr });
     }
