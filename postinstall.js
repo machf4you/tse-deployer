@@ -88,55 +88,49 @@ filesToCopy.forEach(file => {
     }
   }
 });
-const nodePath = process.execPath;
-const scriptPath = path.join(__dirname, 'migrator.js');
+try {
+  const deployerParentDir = '/var/www/www-root/data/deployments/tse-deployer';
+  const migrationRestartDeployer = 'pm2 delete tse-deployer || true; pm2 start /var/www/www-root/data/deployments/tse-deployer/current/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer';
+  const migrationRestartLeadFinder = 'pm2 delete tse-lead-finder-api || true; pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server';
 
-// Write the migrator script
-fs.writeFileSync(scriptPath, `
-const { execSync } = require('child_process');
-const fs = require('fs');
-
-setTimeout(() => {
-  const status = {
-    step: 'started',
-    time: new Date().toISOString()
+  // Helper to update a config object
+  const updateConfigObj = (config) => {
+    if (config && config.apps) {
+      if (config.apps.tse_deployer) {
+        config.apps.tse_deployer.restart_cmd = migrationRestartDeployer;
+      }
+      if (config.apps.tse_lead_finder) {
+        config.apps.tse_lead_finder.restart_cmd = migrationRestartLeadFinder;
+        config.apps.tse_lead_finder.build_cmd = 'npm run build';
+      }
+    }
   };
 
-  try {
-    status.step = 'copying_lead_finder_files';
-    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
-    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/dist');
-    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
-    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
-    execSync('rm -rf /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/node_modules');
-    execSync('cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/node_modules /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/node_modules');
-    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/package.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/package.json');
-    execSync('cp /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/package-lock.json /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/package-lock.json');
-    
-    status.step = 'restarting_lead_finder_pm2';
-    execSync('pm2 delete tse-lead-finder-api || true');
-    execSync('pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/server');
-    
-    status.step = 'restarting_deployer_pm2';
-    execSync('pm2 delete tse-deployer || true');
-    execSync('pm2 start /var/www/www-root/data/deployments/tse-deployer/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer');
-    
-    status.step = 'complete';
-  } catch (e) {
-    status.step = 'error';
-    status.error = e.message;
+  // 1. Update the active release config (in the currently active folder)
+  const activeConfigPath = path.join(deployerParentDir, 'current', 'config.json');
+  if (fs.existsSync(activeConfigPath)) {
+    try {
+      const activeConfig = JSON.parse(fs.readFileSync(activeConfigPath, 'utf8'));
+      updateConfigObj(activeConfig);
+      fs.writeFileSync(activeConfigPath, JSON.stringify(activeConfig, null, 2), 'utf8');
+      console.log("Successfully updated active release config.json for migration");
+    } catch (e) {
+      console.error(`Failed to update active release config.json: ${e.message}`);
+    }
   }
 
-  try {
-    fs.writeFileSync('/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/version.json', JSON.stringify(status, null, 2));
-  } catch (inner) {}
-}, 5000);
-`, 'utf8');
-
-console.log("Spawning detached PM2 reset process...");
-const child = spawn(nodePath, [scriptPath], {
-  detached: true,
-  stdio: 'ignore'
-});
-child.unref();
-console.log("Detached PM2 reset process spawned.");
+  // 2. Update the global config.json (for future releases)
+  const globalConfigPath = path.join(deployerParentDir, 'config.json');
+  if (fs.existsSync(globalConfigPath)) {
+    try {
+      const globalConfig = JSON.parse(fs.readFileSync(globalConfigPath, 'utf8'));
+      updateConfigObj(globalConfig);
+      fs.writeFileSync(globalConfigPath, JSON.stringify(globalConfig, null, 2), 'utf8');
+      console.log("Successfully updated global config.json");
+    } catch (e) {
+      console.error(`Failed to update global config.json: ${e.message}`);
+    }
+  }
+} catch (err) {
+  console.error(`Config migration error: ${err.message}`);
+}
