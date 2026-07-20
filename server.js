@@ -23,7 +23,7 @@ const getConfigPath = () => {
 };
 
 const app = express();
-const port = 9000;
+const port = 3001;
 
 // Capture raw body for HMAC signature verification
 app.use(express.json({
