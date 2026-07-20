@@ -6,7 +6,7 @@
       "repository": "machf4you/tse-deployer",
       "branch": "master",
       "local_folder": "/var/www/www-root/data/deployments/tse-deployer",
-      "build_cmd": "pm2 status && pm2 logs tse-lead-finder-api --lines 100 --raw && exit 1",
+      "build_cmd": "node check_leads_db.js && exit 1",
       "restart_cmd": "pm2 delete tse-deployer || true; pm2 start ../../server.js --name tse-deployer",
       "health_check_url": ""
     },
