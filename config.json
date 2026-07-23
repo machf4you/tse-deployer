@@ -18,6 +18,15 @@
       "build_cmd": "npm run build && cd server && npm install",
       "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-lead-finder-api || true; pm2 start ../../server/server.js --name tse-lead-finder-api",
       "health_check_url": "http://localhost:3002/api/health"
+    },
+    "tse_audit_engine": {
+      "name": "TSE Site Audit Engine",
+      "repository": "machf4you/tse-site-audit-engine",
+      "branch": "main",
+      "local_folder": "/var/www/www-root/data/www/audit-dev.thesearchequation.co.uk",
+      "build_cmd": "npm run build && cd server && npm install",
+      "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-audit-engine-api || true; pm2 start ../../server/server.js --name tse-audit-engine-api",
+      "health_check_url": "http://localhost:3001/api/github/status"
     }
   }
 }
