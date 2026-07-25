@@ -12,7 +12,7 @@
     },
     "tse_lead_finder": {
       "name": "TSE Lead Finder",
-      "repository": "machf4you/tse-lead-finder",
+      "repository": "machf4you/lead-gen",
       "branch": "main",
       "local_folder": "/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
