@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 
 const getConfigPath = () => {
   const parentCurrentConfig = path.join(__dirname, '..', '..', 'current', 'config.json');
@@ -194,8 +194,28 @@ async function deployApp(appId, payload, isObsolete) {
   fs.renameSync(tempLink, currentLink);
 
   // 8. Restart Application
-  console.log(`[DEPLOY] [${appId}] Executing restart command: "${restart_cmd}"`);
-  await runCmd(restart_cmd, stagingDir);
+  if (appId === 'tse_deployer') {
+    console.log(`[DEPLOY] [${appId}] Scheduling detached self-restart in 2 seconds...`);
+    setTimeout(() => {
+      console.log(`[DEPLOY] [${appId}] Executing scheduled detached self-restart command: "${restart_cmd}"`);
+      try {
+        const shell = process.platform === 'win32' ? 'cmd.exe' : '/bin/sh';
+        const args = process.platform === 'win32' ? ['/c', restart_cmd] : ['-c', restart_cmd];
+        const child = spawn(shell, args, {
+          cwd: stagingDir,
+          detached: true,
+          stdio: 'ignore'
+        });
+        child.unref();
+        console.log(`[DEPLOY] [${appId}] Detached self-restart launched successfully.`);
+      } catch (spawnErr) {
+        console.error(`[DEPLOY] [${appId}] Failed to launch detached self-restart:`, spawnErr.message);
+      }
+    }, 2000);
+  } else {
+    console.log(`[DEPLOY] [${appId}] Executing restart command: "${restart_cmd}"`);
+    await runCmd(restart_cmd, stagingDir);
+  }
 
   // 9. Health Check (Decision 4)
   if (health_check_url) {
