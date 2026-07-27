@@ -36,7 +36,7 @@ try {
   // 3. Update global and active release config.json for PM2 / web root migration
   log += "3. Updating configs for migration...\n";
   const migrationRestartDeployer = 'pm2 delete tse-deployer || true; pm2 start /var/www/www-root/data/deployments/tse-deployer/current/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer';
-  const migrationRestartLeadFinder = 'cp -r /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/dist/* /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/ && pm2 delete tse-lead-gen-api || true; pm2 start /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/server/server.js --name tse-lead-gen-api --cwd /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/server';
+  const migrationRestartLeadFinder = 'cp -r /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/dist/* /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/ && pm2 delete lead-gen-api || true; pm2 start /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/server/server.js --name lead-gen-api --cwd /var/www/www-root/data/www/lead-gen.thesearchequation.co.uk/current/server';
 
   const updateConfigObj = (config) => {
     if (config && config.apps) {
