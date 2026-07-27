@@ -36,16 +36,16 @@ try {
   // 3. Update global and active release config.json for PM2 / web root migration
   log += "3. Updating configs for migration...\n";
   const migrationRestartDeployer = 'pm2 delete tse-deployer || true; pm2 start /var/www/www-root/data/deployments/tse-deployer/current/server.js --name tse-deployer --cwd /var/www/www-root/data/deployments/tse-deployer';
-  const migrationRestartLeadFinder = 'cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist/* /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/ && pm2 delete tse-lead-finder-api || true; pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server/server.js --name tse-lead-finder-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server';
+  const migrationRestartLeadFinder = 'cp -r /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/dist/* /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/ && pm2 delete tse-lead-gen-api || true; pm2 start /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server/server.js --name tse-lead-gen-api --cwd /var/www/www-root/data/www/lead-finder.thesearchequation.co.uk/current/server';
 
   const updateConfigObj = (config) => {
     if (config && config.apps) {
       if (config.apps.tse_deployer) {
         config.apps.tse_deployer.restart_cmd = migrationRestartDeployer;
       }
-      if (config.apps.tse_lead_finder) {
-        config.apps.tse_lead_finder.restart_cmd = migrationRestartLeadFinder;
-        config.apps.tse_lead_finder.build_cmd = 'npm run build';
+      if (config.apps.tse_lead_gen) {
+        config.apps.tse_lead_gen.restart_cmd = migrationRestartLeadFinder;
+        config.apps.tse_lead_gen.build_cmd = 'npm run build';
       }
     }
   };
