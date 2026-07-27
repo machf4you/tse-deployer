@@ -16,7 +16,7 @@
       "branch": "main",
       "local_folder": "/var/www/www-root/data/www/lead-finder.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
-      "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-lead-gen-api || true; pm2 start ../../server/server.js --name tse-lead-gen-api",
+      "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete lead-gen-api || true; pm2 start ../../server/server.js --name lead-gen-api",
       "health_check_url": "http://localhost:3002/api/health"
     },
     "tse_audit_engine": {
