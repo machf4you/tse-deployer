@@ -31,7 +31,7 @@ function runCmd(cmd, cwd) {
 }
 
 // Helper to poll the health check URL
-async function runHealthCheck(url, timeoutMs = 12000, retryIntervalMs = 2000) {
+async function runHealthCheck(url, timeoutMs = 60000, retryIntervalMs = 2000) {
   const startTime = Date.now();
   console.log(`[HEALTH] Starting health checks for ${url}`);
 
