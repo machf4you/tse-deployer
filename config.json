@@ -16,7 +16,7 @@
       "branch": "main",
       "local_folder": "/var/www/www-root/data/www/lead-gen.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
-      "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete lead-gen-api || true; pm2 start ../../server/server.js --name lead-gen-api",
+      "restart_cmd": "cp ../../server/.env ./server/.env || true; rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete lead-gen-api || true; pm2 start ../../server/server.js --name lead-gen-api",
       "health_check_url": "http://localhost:3002/api/health"
     },
     "tse_audit_engine": {
@@ -25,7 +25,7 @@
       "branch": "main",
       "local_folder": "/var/www/www-root/data/www/audit-dev.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
-      "restart_cmd": "rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-audit-engine-api || true; pm2 start ../../server/server.js --name tse-audit-engine-api",
+      "restart_cmd": "cp ../../server/.env ./server/.env || true; rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-audit-engine-api || true; pm2 start ../../server/server.js --name tse-audit-engine-api",
       "health_check_url": "http://localhost:3001/api/github/status"
     }
   }
