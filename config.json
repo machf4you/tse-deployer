@@ -25,8 +25,8 @@
       "branch": "main",
       "local_folder": "/var/www/www-root/data/www/audit-dev.thesearchequation.co.uk",
       "build_cmd": "npm run build && cd server && npm install",
-      "restart_cmd": "cp ../../server/.env ./server/.env || true; rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-audit-engine-api || true; pm2 start ../../server/server.js --name tse-audit-engine-api",
-      "health_check_url": "http://localhost:3001/"
+      "restart_cmd": "cp ../../server/.env ./server/.env || true; rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete tse-audit-engine-api || true; pm2 start /var/www/www-root/data/www/audit-dev.thesearchequation.co.uk/server/server.js --name tse-audit-engine-api --cwd /var/www/www-root/data/www/audit-dev.thesearchequation.co.uk/server",
+      "health_check_url": "http://localhost:3001/api/health"
     }
   }
 }
