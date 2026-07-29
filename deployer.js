@@ -84,17 +84,25 @@ async function deployApp(appId, payload, isObsolete) {
   fs.mkdirSync(releasesDir, { recursive: true });
 
   // 1. Manage git repo cache
+  const commitHash = payload.after;
   if (!fs.existsSync(repoDir)) {
     console.log(`[DEPLOY] [${appId}] Cloning repository into cache directory...`);
     await runCmd(`git clone https://github.com/${repository}.git repo`, local_folder);
   } else {
     console.log(`[DEPLOY] [${appId}] Fetching latest changes into cache...`);
-    await runCmd(`git fetch origin`, repoDir);
+    try {
+      await runCmd(`git remote set-url origin https://github.com/${repository}.git`, repoDir);
+    } catch (remoteErr) {}
+    try {
+      await runCmd(`git fetch origin ${commitHash}`, repoDir);
+    } catch (fetchErr) {
+      console.log(`[DEPLOY] [${appId}] Fetch commit directly failed, falling back to full fetch: ${fetchErr.message}`);
+      await runCmd(`git fetch origin`, repoDir);
+    }
   }
 
   // 2. Prepare staging/release folder
   const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
-  const commitHash = payload.after;
   const releaseFolderName = `${commitHash.slice(0, 7)}_${timestamp}`;
   const stagingDir = path.join(releasesDir, releaseFolderName);
 
