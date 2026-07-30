@@ -137,7 +137,11 @@ async function deployApp(appId, payload, isObsolete) {
   const activeNodeModules = path.join(currentLink, 'node_modules');
   const stagingNodeModules = path.join(stagingDir, 'node_modules');
 
-  if (!packageJsonChanged && fs.existsSync(activeNodeModules)) {
+  const stagingPackagePath = path.join(stagingDir, 'package.json');
+
+  if (!fs.existsSync(stagingPackagePath)) {
+    console.log(`[DEPLOY] [${appId}] No package.json found. Skipping npm install.`);
+  } else if (!packageJsonChanged && fs.existsSync(activeNodeModules)) {
     console.log(`[DEPLOY] [${appId}] package.json unchanged. Copying existing node_modules...`);
     fs.cpSync(activeNodeModules, stagingNodeModules, { recursive: true });
   } else {
