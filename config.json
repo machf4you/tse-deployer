@@ -7,7 +7,7 @@
       "branch": "master",
       "local_folder": "/var/www/www-root/data/deployments/tse-deployer",
       "build_cmd": "echo 'ok'",
-      "restart_cmd": "pm2 delete tse-lead-gen-api || true; pm2 delete tse-deployer || true; pm2 start ../../server.js --name tse-deployer",
+      "restart_cmd": "pm2 delete tse-lead-gen-api || true; pm2 delete tse-deployer || true; pm2 start /var/www/www-root/data/deployments/tse-deployer/current/server.js --name tse-deployer",
       "health_check_url": ""
     },
     "tse_lead_gen": {
