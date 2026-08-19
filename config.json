@@ -36,6 +36,15 @@
       "build_cmd": "npm install",
       "restart_cmd": "mkdir -p /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/shared_db; mkdir -p /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current; cp -r server /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current/ || true; cp -r node_modules /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current/ || true; cp package.json /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current/ || true; pm2 delete website-manager-api || true; PERSISTENT_STORAGE_DIR=/var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/shared_db PORT=3005 pm2 start /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current/server/index.js --name website-manager-api --cwd /var/www/www-root/data/www/api-website-manager.thesearchequation.co.uk/current",
       "health_check_url": "http://localhost:3005/api/health"
+    },
+    "tse_page_auditor": {
+      "name": "TSE Page Auditor API",
+      "repository": "machf4you/tse-page-auditor",
+      "branch": "main",
+      "local_folder": "/var/www/www-root/data/www/api-page-auditor.thesearchequation.co.uk",
+      "build_cmd": "pip install -r backend/requirements.txt || true",
+      "restart_cmd": "pm2 delete page-auditor-api || true; pm2 start backend/server.py --name page-auditor-api --interpreter python3 --cwd /var/www/www-root/data/www/api-page-auditor.thesearchequation.co.uk/backend -- --host 127.0.0.1 --port 8000",
+      "health_check_url": "http://localhost:8000/api/"
     }
   }
 }
