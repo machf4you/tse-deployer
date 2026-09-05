@@ -45,6 +45,15 @@
       "build_cmd": "pip install -r backend/requirements.txt || true",
       "restart_cmd": "pm2 delete page-auditor-api || true; pm2 start backend/server.py --name page-auditor-api --interpreter python3 --cwd /var/www/www-root/data/www/api-page-auditor.thesearchequation.co.uk/backend -- --host 127.0.0.1 --port 8000",
       "health_check_url": "http://localhost:8000/api/"
+    },
+    "tse_site_registry": {
+      "name": "TSE Site Registry",
+      "repository": "machf4you/tse-site-registry",
+      "branch": "main",
+      "local_folder": "/var/www/www-root/data/www/site-registry.thesearchequation.co.uk",
+      "build_cmd": "npm run build && cd server && npm install",
+      "restart_cmd": "cp ../../server/.env ./server/.env || true; rm -rf ../../dist && cp -r dist ../../dist && rm -rf ../../server && cp -r server ../../server && cp version.json ../../version.json || true; pm2 delete site-registry-api || true; PORT=3006 pm2 start /var/www/www-root/data/www/site-registry.thesearchequation.co.uk/server/server.js --name site-registry-api --cwd /var/www/www-root/data/www/site-registry.thesearchequation.co.uk/server",
+      "health_check_url": "http://localhost:3006/api/health"
     }
   }
 }
